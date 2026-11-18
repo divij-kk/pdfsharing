@@ -28,6 +28,7 @@ body {
   background: var(--kk-bg);
   color: var(--kk-text);
   -webkit-font-smoothing: antialiased;
+  text-transform: uppercase;
 }
 
 h1 {
