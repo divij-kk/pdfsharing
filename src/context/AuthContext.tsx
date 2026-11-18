@@ -9,9 +9,8 @@ import type { UserProfile } from '../types';
 
 interface AuthContextValue {
   firebaseUser: FirebaseUser | null;
-  /** The Firestore users/{uid} doc, or null if signed in but no profile saved yet
-   * (e.g. a customer who's signed in anonymously but hasn't filled the intake
-   * form, or a brand-new staff Google sign-in). */
+  /** The Firestore users/{uid} doc, or null if signed in with Google but
+   * hasn't completed the one-time profile (mobile/location) form yet. */
   profile: UserProfile | null;
   loading: boolean;
 }

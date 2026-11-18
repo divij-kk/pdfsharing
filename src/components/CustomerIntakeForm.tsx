@@ -3,9 +3,11 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { User as FirebaseUser } from 'firebase/auth';
 
+// Shown once, right after Google sign-in, for anyone with no profile doc
+// yet. Name and email already come from the Google account — this just
+// fills in the two things Google doesn't give us.
 export default function CustomerIntakeForm({ firebaseUser }: { firebaseUser: FirebaseUser }) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(firebaseUser.displayName || '');
   const [mobile, setMobile] = useState('');
   const [location, setLocation] = useState('');
   const [error, setError] = useState('');
@@ -20,7 +22,7 @@ export default function CustomerIntakeForm({ firebaseUser }: { firebaseUser: Fir
         uid: firebaseUser.uid,
         role: 'customer',
         name: name.trim(),
-        email: email.trim(),
+        email: firebaseUser.email || '',
         mobile: mobile.trim(),
         location: location.trim(),
         createdAt: serverTimestamp(),
@@ -34,26 +36,13 @@ export default function CustomerIntakeForm({ firebaseUser }: { firebaseUser: Fir
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>Welcome to KK Umbrellas</h1>
-        <p className="auth-sub">Just a few details before you browse the catalog.</p>
+        <h1>Just one more step</h1>
+        <p className="auth-sub">
+          Signed in as {firebaseUser.email}. A couple more details before you browse.
+        </p>
         <label>
           Name *
-          <input
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoComplete="name"
-          />
-        </label>
-        <label>
-          Email ID *
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-          />
+          <input required value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
         </label>
         <label>
           Mobile Number *

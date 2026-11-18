@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { signInAnonymously } from 'firebase/auth';
+import { useMemo, useState } from 'react';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useProducts } from '../hooks/useProducts';
+import GoogleSignInGate from '../components/GoogleSignInGate';
 import CustomerIntakeForm from '../components/CustomerIntakeForm';
 import PdfViewerModal from '../components/PdfViewerModal';
 import { toViewableUrl } from '../lib/pdfUrl';
@@ -14,15 +14,6 @@ export default function Catalog() {
   const { products, loading } = useProducts();
   const [activeType, setActiveType] = useState<string | null>(null);
   const [viewing, setViewing] = useState<Product | null>(null);
-
-  // First-ever visit: sign in anonymously so we have a stable identity to
-  // attach the intake form's details to. Persists across visits, so this
-  // only happens once per browser.
-  useEffect(() => {
-    if (!authLoading && !firebaseUser) {
-      signInAnonymously(auth).catch(() => {});
-    }
-  }, [authLoading, firebaseUser]);
 
   // Customer catalog: only SKUs that have a PDF, sorted alphabetically.
   const withPdf = useMemo(() => products.filter((p) => !!p.pdfUrl), [products]);
@@ -58,12 +49,18 @@ export default function Catalog() {
     }
   }
 
-  if (authLoading || !firebaseUser) {
+  if (authLoading) {
     return <div className="page-loading">Loading…</div>;
   }
 
-  // Signed in (anonymously, or as staff with no profile yet) but no saved
-  // profile — show the one-time intake form before unlocking the catalog.
+  // Not signed in yet — everyone (customers and staff alike) signs up with
+  // Google now.
+  if (!firebaseUser) {
+    return <GoogleSignInGate />;
+  }
+
+  // Signed in with Google but no saved profile yet — collect the couple of
+  // details Google doesn't give us before unlocking the catalog.
   if (!profile) {
     return <CustomerIntakeForm firebaseUser={firebaseUser} />;
   }

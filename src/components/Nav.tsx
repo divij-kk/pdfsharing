@@ -6,11 +6,10 @@ import { useAuth } from '../context/AuthContext';
 export default function Nav() {
   const { firebaseUser, profile } = useAuth();
   const navigate = useNavigate();
-  const isStaff = !!firebaseUser && !firebaseUser.isAnonymous;
 
   async function handleLogout() {
     await signOut(auth);
-    navigate('/staff-login');
+    navigate('/');
   }
 
   return (
@@ -29,15 +28,11 @@ export default function Nav() {
         <Link to="/">Catalog</Link>
       </nav>
       <div className="nav-user">
-        {isStaff ? (
+        {firebaseUser && (
           <>
             <span className="nav-email">{firebaseUser.email}</span>
             <button onClick={handleLogout}>Log out</button>
           </>
-        ) : (
-          <Link to="/staff-login" className="nav-staff-link">
-            Staff login
-          </Link>
         )}
       </div>
     </header>
