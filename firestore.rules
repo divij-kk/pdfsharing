@@ -1,0 +1,54 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function roleOf(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data.role;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && roleOf(request.auth.uid) == 'admin';
+    }
+
+    function isStaff() {
+      return isSignedIn() &&
+        roleOf(request.auth.uid) in ['sales', 'counter', 'admin'];
+    }
+
+    // users/{uid} — each user's own profile + role.
+    match /users/{uid} {
+      allow read: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+
+      // A user may create only their own doc, and only with a safe
+      // self-assigned default role (never 'admin', 'sales' or 'counter' —
+      // those are granted by an admin via the Users panel).
+      allow create: if isSignedIn() && request.auth.uid == uid &&
+        request.resource.data.uid == uid &&
+        request.resource.data.role in ['customer', 'pending'];
+
+      // Only an admin may change anyone's role (including their own doc's
+      // role field). A user may still update their own non-role fields if
+      // ever needed, but role changes always require admin.
+      allow update: if isAdmin() ||
+        (isSignedIn() && request.auth.uid == uid &&
+          request.resource.data.role == resource.data.role);
+
+      allow delete: if isAdmin();
+    }
+
+    // products/{sku} — catalog + stock data.
+    match /products/{sku} {
+      // Any signed-in user can read (customers see it with stock stripped
+      // client-side by only querying products that have a pdfUrl; the raw
+      // stock numbers are still technically readable by a signed-in
+      // customer via direct API access — acceptable for this business).
+      allow read: if isSignedIn();
+      allow write: if isStaff();
+    }
+  }
+}
