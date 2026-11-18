@@ -14,7 +14,7 @@ export default function ProtectedRoute({
   const { firebaseUser, profile, loading } = useAuth();
 
   if (loading) return <div className="page-loading">Loading…</div>;
-  if (!firebaseUser) return <Navigate to="/login" replace />;
+  if (!firebaseUser || firebaseUser.isAnonymous) return <Navigate to="/staff-login" replace />;
   if (allow && (!profile || !allow.includes(profile.role))) {
     return <Navigate to="/" replace />;
   }

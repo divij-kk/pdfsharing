@@ -5,6 +5,10 @@ export interface UserProfile {
   email: string;
   role: Role;
   createdAt: number;
+  // Customer intake fields (collected once, on first catalog visit).
+  name?: string;
+  mobile?: string;
+  location?: string;
 }
 
 export interface Product {

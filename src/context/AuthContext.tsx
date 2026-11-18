@@ -3,12 +3,15 @@ import {
   onAuthStateChanged,
   type User as FirebaseUser,
 } from 'firebase/auth';
-import { doc, onSnapshot, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, onSnapshot } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import type { UserProfile } from '../types';
 
 interface AuthContextValue {
   firebaseUser: FirebaseUser | null;
+  /** The Firestore users/{uid} doc, or null if signed in but no profile saved yet
+   * (e.g. a customer who's signed in anonymously but hasn't filled the intake
+   * form, or a brand-new staff Google sign-in). */
   profile: UserProfile | null;
   loading: boolean;
 }
@@ -43,23 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubDoc = onSnapshot(
       doc(db, 'users', firebaseUser.uid),
       (snap) => {
-        if (snap.exists()) {
-          setProfile(snap.data() as UserProfile);
-          setProfileResolved(true);
-        } else {
-          // First sign-in via a path that doesn't pre-create the doc (e.g.
-          // the email-link flow) — create a default 'customer' profile.
-          // Rules only allow a user to create their own doc with this role.
-          setDoc(doc(db, 'users', firebaseUser.uid), {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email,
-            role: 'customer',
-            createdAt: serverTimestamp(),
-          }).catch(() => {
-            // If this also fails, stop showing a perpetual spinner.
-            setProfileResolved(true);
-          });
-        }
+        setProfile(snap.exists() ? (snap.data() as UserProfile) : null);
+        setProfileResolved(true);
       },
       () => setProfileResolved(true)
     );

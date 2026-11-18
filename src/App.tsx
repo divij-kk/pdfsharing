@@ -2,8 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Nav from './components/Nav';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import StaffLogin from './pages/StaffLogin';
 import Catalog from './pages/Catalog';
 import Dashboard from './pages/Dashboard';
 import AdminUsers from './pages/AdminUsers';
@@ -15,16 +14,11 @@ export default function App() {
       <AuthProvider>
         <Nav />
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Catalog />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/staff-login" element={<StaffLogin />} />
+          {/* Catalog handles its own anonymous sign-in + intake form, so it
+              isn't wrapped in ProtectedRoute (which would redirect to staff
+              login instead). */}
+          <Route path="/" element={<Catalog />} />
           <Route
             path="/dashboard"
             element={
