@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { signInAnonymously } from 'firebase/auth';
-import { auth } from '../firebase';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { auth, db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 import { useProducts } from '../hooks/useProducts';
 import CustomerIntakeForm from '../components/CustomerIntakeForm';
@@ -36,6 +37,27 @@ export default function Catalog() {
     return withPdf.filter((p) => p.type === activeType).sort((a, b) => a.name.localeCompare(b.name));
   }, [withPdf, activeType]);
 
+  // Log every PDF a customer opens so staff can see who's been looking at
+  // what (name/mobile from their intake form) and follow up.
+  function openProduct(p: Product) {
+    setViewing(p);
+    if (firebaseUser && profile) {
+      addDoc(collection(db, 'pdfViews'), {
+        uid: firebaseUser.uid,
+        name: profile.name ?? '',
+        mobile: profile.mobile ?? '',
+        email: profile.email ?? '',
+        location: profile.location ?? '',
+        productSku: p.sku,
+        productName: p.name,
+        productType: p.type,
+        viewedAt: serverTimestamp(),
+      }).catch(() => {
+        // Best-effort logging — never block the user from viewing the PDF.
+      });
+    }
+  }
+
   if (authLoading || !firebaseUser) {
     return <div className="page-loading">Loading…</div>;
   }
@@ -67,7 +89,7 @@ export default function Catalog() {
         <h1>{activeType}</h1>
         <div className="product-grid">
           {productsInType.map((p) => (
-            <button key={p.sku} className="product-card" onClick={() => setViewing(p)}>
+            <button key={p.sku} className="product-card" onClick={() => openProduct(p)}>
               {p.name}
             </button>
           ))}

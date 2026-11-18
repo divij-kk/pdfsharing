@@ -20,3 +20,18 @@ export interface Product {
   ready: number;
   pdfUrl: string; // Firebase Storage download URL, '' if none
 }
+
+// One row per PDF opened in the customer catalog — lets staff see who's
+// been looking at what, for follow-up.
+export interface PdfViewLog {
+  id: string; // Firestore doc id
+  uid: string;
+  name: string;
+  mobile: string;
+  email: string;
+  location: string;
+  productSku: string;
+  productName: string;
+  productType: string;
+  viewedAt: number | null; // epoch ms, null for an instant until the server timestamp lands
+}

@@ -538,3 +538,23 @@ h1 {
   border-color: var(--kk-primary);
   color: var(--kk-primary);
 }
+
+/* ---------- View logs ---------- */
+
+.log-search {
+  padding: 10px 14px;
+  border: 1px solid var(--kk-border);
+  border-radius: 9px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 280px;
+  max-width: 100%;
+  color: var(--kk-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.log-search:focus {
+  outline: none;
+  border-color: var(--kk-primary);
+  box-shadow: 0 0 0 3px var(--kk-primary-light);
+}

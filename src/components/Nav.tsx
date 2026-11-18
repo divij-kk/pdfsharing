@@ -22,6 +22,9 @@ export default function Nav() {
         {profile && (profile.role === 'sales' || profile.role === 'counter' || profile.role === 'admin') && (
           <Link to="/dashboard">Dashboard</Link>
         )}
+        {profile && (profile.role === 'sales' || profile.role === 'counter' || profile.role === 'admin') && (
+          <Link to="/logs">View Logs</Link>
+        )}
         {profile?.role === 'admin' && <Link to="/admin/users">Users</Link>}
         <Link to="/">Catalog</Link>
       </nav>
