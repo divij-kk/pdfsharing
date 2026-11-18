@@ -1,8 +1,9 @@
 :root {
-  --kk-primary: #2954e0;
-  --kk-primary-dark: #1c3aa3;
-  --kk-primary-light: #eef2ff;
-  --kk-bg: #f6f7fb;
+  /* Matches kkumbrellas.com's royal-blue header/brand color. */
+  --kk-primary: #3d4ec6;
+  --kk-primary-dark: #2b3899;
+  --kk-primary-light: #eef0fd;
+  --kk-bg: #ffffff;
   --kk-card: #ffffff;
   --kk-border: #e4e7f0;
   --kk-text: #14172b;
@@ -42,42 +43,74 @@ h1 {
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 16px 28px;
-  background: var(--kk-card);
-  border-bottom: 1px solid var(--kk-border);
+  padding: 10px 28px;
+  background: var(--kk-primary);
   position: sticky;
   top: 0;
   z-index: 10;
-  backdrop-filter: saturate(180%) blur(8px);
+  box-shadow: var(--shadow-sm);
 }
 
 .nav-brand {
-  font-weight: 800;
-  font-size: 19px;
-  letter-spacing: -0.01em;
-  color: var(--kk-primary-dark);
+  display: flex;
+  align-items: center;
   text-decoration: none;
+}
+
+/* A simple circular badge standing in for the KK Umbrella logo — white
+   ring on the nav's royal-blue bar, same spirit as the real site's mark. */
+.nav-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 2px solid #ffffff;
+  line-height: 1;
+}
+
+.nav-badge-kk {
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+  color: var(--kk-primary);
+}
+
+.nav-badge-sub {
+  font-size: 6px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--kk-primary);
+  margin-top: 1px;
 }
 
 .nav-links {
   display: flex;
-  gap: 20px;
+  gap: 22px;
   flex: 1;
 }
 
 .nav-links a {
-  color: var(--kk-text);
+  color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   padding: 6px 2px;
   border-bottom: 2px solid transparent;
   transition: color 0.15s, border-color 0.15s;
 }
 
 .nav-links a:hover {
-  color: var(--kk-primary);
-  border-color: var(--kk-primary);
+  color: #ffffff;
+}
+
+.nav-links a.active {
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 .nav-user {
@@ -85,38 +118,23 @@ h1 {
   align-items: center;
   gap: 14px;
   font-size: 13px;
-  color: var(--kk-muted);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .nav-user button {
-  background: var(--kk-card);
-  border: 1px solid var(--kk-border);
+  background: #ffffff;
+  color: var(--kk-primary-dark);
+  border: none;
   border-radius: 8px;
   padding: 7px 14px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: opacity 0.15s;
 }
 
 .nav-user button:hover {
-  border-color: var(--kk-primary);
-  color: var(--kk-primary);
-}
-
-.nav-staff-link {
-  color: var(--kk-muted);
-  text-decoration: none;
-  font-size: 13px;
-  border: 1px solid var(--kk-border);
-  border-radius: 8px;
-  padding: 7px 14px;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.nav-staff-link:hover {
-  border-color: var(--kk-primary);
-  color: var(--kk-primary);
+  opacity: 0.85;
 }
 
 /* ---------- Page shells ---------- */

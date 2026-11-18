@@ -1,11 +1,16 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useAuth } from '../context/AuthContext';
 
+function navLinkClass({ isActive }: { isActive: boolean }) {
+  return isActive ? 'active' : undefined;
+}
+
 export default function Nav() {
   const { firebaseUser, profile } = useAuth();
   const navigate = useNavigate();
+  const isStaff = !!profile && ['sales', 'counter', 'admin'].includes(profile.role);
 
   async function handleLogout() {
     await signOut(auth);
@@ -14,18 +19,31 @@ export default function Nav() {
 
   return (
     <header className="nav">
-      <Link to="/" className="nav-brand">
-        KK Umbrellas
+      <Link to="/" className="nav-brand" aria-label="KK Umbrellas home">
+        <span className="nav-badge">
+          <span className="nav-badge-kk">KK</span>
+          <span className="nav-badge-sub">UMBRELLA</span>
+        </span>
       </Link>
       <nav className="nav-links">
-        {profile && (profile.role === 'sales' || profile.role === 'counter' || profile.role === 'admin') && (
-          <Link to="/dashboard">Dashboard</Link>
+        <NavLink to="/" end className={navLinkClass}>
+          Catalog
+        </NavLink>
+        {isStaff && (
+          <NavLink to="/dashboard" className={navLinkClass}>
+            Dashboard
+          </NavLink>
         )}
-        {profile && (profile.role === 'sales' || profile.role === 'counter' || profile.role === 'admin') && (
-          <Link to="/logs">View Logs</Link>
+        {isStaff && (
+          <NavLink to="/logs" className={navLinkClass}>
+            View Logs
+          </NavLink>
         )}
-        {profile?.role === 'admin' && <Link to="/admin/users">Users</Link>}
-        <Link to="/">Catalog</Link>
+        {profile?.role === 'admin' && (
+          <NavLink to="/admin/users" className={navLinkClass}>
+            Users
+          </NavLink>
+        )}
       </nav>
       <div className="nav-user">
         {firebaseUser && (
