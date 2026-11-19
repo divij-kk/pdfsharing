@@ -7,7 +7,7 @@ import GoogleSignInGate from '../components/GoogleSignInGate';
 import CustomerIntakeForm from '../components/CustomerIntakeForm';
 import PdfViewerModal from '../components/PdfViewerModal';
 import { toViewableUrl } from '../lib/pdfUrl';
-import { buildCategoryTree } from '../lib/categories';
+import { buildCategoryTree, groupBySuperGroup } from '../lib/categories';
 import type { Product } from '../types';
 
 export default function Catalog() {
@@ -26,6 +26,8 @@ export default function Catalog() {
     const rawTypes = Array.from(new Set(withPdf.map((p) => p.type)));
     return buildCategoryTree(rawTypes);
   }, [withPdf]);
+
+  const superGroups = useMemo(() => groupBySuperGroup(categoryTree), [categoryTree]);
 
   const activeGroupData = useMemo(
     () => categoryTree.find((g) => g.group === activeGroup) ?? null,
@@ -46,7 +48,15 @@ export default function Catalog() {
 
   function selectGroup(group: string | null) {
     setActiveGroup(group);
-    setActiveLabel(null);
+    if (!group) {
+      setActiveLabel(null);
+      return;
+    }
+    // A category with only one sub-type (Garden, Kids) skips straight to
+    // its products — no point showing an in-between screen with a single
+    // button on it.
+    const g = categoryTree.find((x) => x.group === group);
+    setActiveLabel(g && g.labels.length === 1 ? g.labels[0].label : null);
   }
 
   // Log every PDF a customer opens so staff can see who's been looking at
@@ -101,10 +111,17 @@ export default function Catalog() {
   // Level 3: products within the selected category (which may roll up more
   // than one raw inventory type code, e.g. Hilton + Hulk).
   if (activeGroupData && activeLabelData) {
+    // When the group has only one category, selectGroup() already skipped
+    // straight here — so "back" should go all the way to the top rather
+    // than to an in-between screen with the same single button on it.
+    const singleCategoryGroup = activeGroupData.labels.length === 1;
     return (
       <div className="page catalog-page">
-        <button className="back-link" onClick={() => setActiveLabel(null)}>
-          ← {activeGroupData.group}
+        <button
+          className="back-link"
+          onClick={() => (singleCategoryGroup ? selectGroup(null) : setActiveLabel(null))}
+        >
+          ← {singleCategoryGroup ? 'All categories' : activeGroupData.group}
         </button>
         <h1>{activeLabelData.label}</h1>
         <div className="product-grid">
@@ -139,19 +156,24 @@ export default function Catalog() {
     );
   }
 
-  // Level 1: parent groups.
+  // Level 1: parent groups, bucketed under their super-group heading.
   return (
     <div className="page catalog-page">
       <h1>KK Umbrellas Catalog</h1>
       <p className="page-sub">Browse by category</p>
-      <div className="product-grid">
-        {categoryTree.map((g) => (
-          <button key={g.group} className="product-card type-card" onClick={() => selectGroup(g.group)}>
-            {g.group}
-          </button>
-        ))}
-        {categoryTree.length === 0 && <p>No products available yet.</p>}
-      </div>
+      {superGroups.map((sg) => (
+        <section key={sg.superGroup} className="catalog-section">
+          <h2 className="catalog-section-heading">{sg.superGroup}</h2>
+          <div className="product-grid">
+            {sg.groups.map((g) => (
+              <button key={g.group} className="product-card type-card" onClick={() => selectGroup(g.group)}>
+                {g.group}
+              </button>
+            ))}
+          </div>
+        </section>
+      ))}
+      {categoryTree.length === 0 && <p>No products available yet.</p>}
     </div>
   );
 }

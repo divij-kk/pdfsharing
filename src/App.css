@@ -32,9 +32,35 @@ body {
   text-transform: uppercase;
 }
 
+/* Browsers reset text-transform to "none" on form controls by default, so
+   buttons/inputs/selects don't pick up body's uppercase on their own —
+   force them to inherit it like everything else. */
+button,
+input,
+select,
+textarea {
+  text-transform: inherit;
+}
+
 h1 {
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+.catalog-section {
+  margin-top: 28px;
+}
+
+.catalog-section:first-of-type {
+  margin-top: 20px;
+}
+
+.catalog-section-heading {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--kk-muted);
+  margin: 0 0 10px;
 }
 
 /* ---------- Nav ---------- */

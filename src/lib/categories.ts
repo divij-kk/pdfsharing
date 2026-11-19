@@ -86,3 +86,28 @@ export function buildCategoryTree(rawTypesPresent: string[]): CategoryGroup[] {
     return { group, labels };
   });
 }
+
+// Groups like "Long Umbrellas - Manual Open" and "Long Umbrellas -
+// Automatic Open" share a top-level heading of just "Long Umbrellas" on
+// the first catalog page. A group with no " - " (Garden Umbrellas, Kids
+// Umbrellas) is its own heading.
+export function superGroupOf(group: string): string {
+  return group.split(' - ')[0];
+}
+
+export interface SuperGroup {
+  superGroup: string;
+  groups: CategoryGroup[];
+}
+
+/** Buckets an already-built category tree under its super-group headings,
+ * preserving the tree's own group order. */
+export function groupBySuperGroup(tree: CategoryGroup[]): SuperGroup[] {
+  const map = new Map<string, CategoryGroup[]>();
+  tree.forEach((g) => {
+    const sg = superGroupOf(g.group);
+    if (!map.has(sg)) map.set(sg, []);
+    map.get(sg)!.push(g);
+  });
+  return Array.from(map.entries()).map(([superGroup, groups]) => ({ superGroup, groups }));
+}
