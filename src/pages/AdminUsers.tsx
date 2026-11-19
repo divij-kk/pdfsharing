@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Role, UserProfile } from '../types';
@@ -10,6 +10,8 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [savingUid, setSavingUid] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | Role>('all');
 
   useEffect(() => {
     const unsub = onSnapshot(
@@ -26,6 +28,19 @@ export default function AdminUsers() {
     );
     return () => unsub();
   }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return users.filter((u) => {
+      if (roleFilter !== 'all' && u.role !== roleFilter) return false;
+      if (!q) return true;
+      return [u.email, u.name, u.mobile, u.location]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes(q);
+    });
+  }, [users, search, roleFilter]);
 
   async function changeRole(uid: string, role: Role) {
     setError('');
@@ -44,23 +59,39 @@ export default function AdminUsers() {
   return (
     <div className="page dashboard-page">
       <h1>Users</h1>
-      <p className="page-sub">
-        Assign roles: <strong>customer</strong> (catalog only), <strong>sales</strong> (stock +
-        WhatsApp + PDF merge), <strong>counter</strong> (stock + PDF viewing), <strong>admin</strong>{' '}
-        (everything, plus this panel).
-      </p>
       {error && <p className="auth-error">{error}</p>}
+      <div className="dashboard-toolbar">
+        <input
+          type="text"
+          placeholder="Search by name, email, mobile…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="log-search"
+        />
+        <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value as 'all' | Role)}>
+          <option value="all">All roles</option>
+          {ROLES.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
+      </div>
       <table className="stock-table">
         <thead>
           <tr>
             <th>Email</th>
+            <th>Name</th>
+            <th>Mobile</th>
             <th>Role</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((u) => (
+          {filtered.map((u) => (
             <tr key={u.uid}>
               <td>{u.email}</td>
+              <td>{u.name || '—'}</td>
+              <td>{u.mobile || '—'}</td>
               <td>
                 <select
                   value={u.role}
@@ -76,6 +107,11 @@ export default function AdminUsers() {
               </td>
             </tr>
           ))}
+          {filtered.length === 0 && (
+            <tr>
+              <td colSpan={4}>No matching users.</td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>

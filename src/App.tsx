@@ -5,7 +5,6 @@ import Nav from './components/Nav';
 import Catalog from './pages/Catalog';
 import Dashboard from './pages/Dashboard';
 import AdminUsers from './pages/AdminUsers';
-import ViewLogs from './pages/ViewLogs';
 import './App.css';
 
 export default function App() {
@@ -30,14 +29,6 @@ export default function App() {
             element={
               <ProtectedRoute allow={['admin']}>
                 <AdminUsers />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/logs"
-            element={
-              <ProtectedRoute allow={['sales', 'counter', 'admin']}>
-                <ViewLogs />
               </ProtectedRoute>
             }
           />

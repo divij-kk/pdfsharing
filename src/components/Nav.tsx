@@ -10,7 +10,6 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 export default function Nav() {
   const { firebaseUser, profile } = useAuth();
   const navigate = useNavigate();
-  const isStaff = !!profile && ['sales', 'counter', 'admin'].includes(profile.role);
 
   async function handleLogout() {
     await signOut(auth);
@@ -20,25 +19,12 @@ export default function Nav() {
   return (
     <header className="nav">
       <Link to="/" className="nav-brand" aria-label="KK Umbrellas home">
-        <span className="nav-badge">
-          <span className="nav-badge-kk">KK</span>
-          <span className="nav-badge-sub">UMBRELLA</span>
-        </span>
+        <img src="/kk-logo-white.png" alt="KK Umbrellas" className="nav-logo" />
       </Link>
       <nav className="nav-links">
         <NavLink to="/" end className={navLinkClass}>
           Catalog
         </NavLink>
-        {isStaff && (
-          <NavLink to="/dashboard" className={navLinkClass}>
-            Dashboard
-          </NavLink>
-        )}
-        {isStaff && (
-          <NavLink to="/logs" className={navLinkClass}>
-            View Logs
-          </NavLink>
-        )}
         {profile?.role === 'admin' && (
           <NavLink to="/admin/users" className={navLinkClass}>
             Users
