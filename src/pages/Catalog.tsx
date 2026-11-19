@@ -7,26 +7,47 @@ import GoogleSignInGate from '../components/GoogleSignInGate';
 import CustomerIntakeForm from '../components/CustomerIntakeForm';
 import PdfViewerModal from '../components/PdfViewerModal';
 import { toViewableUrl } from '../lib/pdfUrl';
+import { buildCategoryTree } from '../lib/categories';
 import type { Product } from '../types';
 
 export default function Catalog() {
   const { firebaseUser, profile, loading: authLoading } = useAuth();
   const { products, loading } = useProducts();
-  const [activeType, setActiveType] = useState<string | null>(null);
+  const [activeGroup, setActiveGroup] = useState<string | null>(null);
+  const [activeLabel, setActiveLabel] = useState<string | null>(null);
   const [viewing, setViewing] = useState<Product | null>(null);
 
-  // Customer catalog: only SKUs that have a PDF, sorted alphabetically.
+  // Customer catalog: only SKUs that have a PDF.
   const withPdf = useMemo(() => products.filter((p) => !!p.pdfUrl), [products]);
 
-  const types = useMemo(() => {
-    const set = new Set(withPdf.map((p) => p.type));
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  // Parent group -> display label -> raw inventory type code(s), built only
+  // from types actually present so empty categories never show up.
+  const categoryTree = useMemo(() => {
+    const rawTypes = Array.from(new Set(withPdf.map((p) => p.type)));
+    return buildCategoryTree(rawTypes);
   }, [withPdf]);
 
-  const productsInType = useMemo(() => {
-    if (!activeType) return [];
-    return withPdf.filter((p) => p.type === activeType).sort((a, b) => a.name.localeCompare(b.name));
-  }, [withPdf, activeType]);
+  const activeGroupData = useMemo(
+    () => categoryTree.find((g) => g.group === activeGroup) ?? null,
+    [categoryTree, activeGroup]
+  );
+
+  const activeLabelData = useMemo(
+    () => activeGroupData?.labels.find((l) => l.label === activeLabel) ?? null,
+    [activeGroupData, activeLabel]
+  );
+
+  const productsInLabel = useMemo(() => {
+    if (!activeLabelData) return [];
+    return withPdf
+      .filter((p) => activeLabelData.codes.includes(p.type))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [withPdf, activeLabelData]);
+
+  function selectGroup(group: string | null) {
+    setActiveGroup(group);
+    setActiveLabel(null);
+  }
 
   // Log every PDF a customer opens so staff can see who's been looking at
   // what (name/mobile from their intake form) and follow up.
@@ -77,36 +98,59 @@ export default function Catalog() {
     );
   }
 
-  if (activeType) {
+  // Level 3: products within the selected category (which may roll up more
+  // than one raw inventory type code, e.g. Hilton + Hulk).
+  if (activeGroupData && activeLabelData) {
     return (
       <div className="page catalog-page">
-        <button className="back-link" onClick={() => setActiveType(null)}>
-          ← All categories
+        <button className="back-link" onClick={() => setActiveLabel(null)}>
+          ← {activeGroupData.group}
         </button>
-        <h1>{activeType}</h1>
+        <h1>{activeLabelData.label}</h1>
         <div className="product-grid">
-          {productsInType.map((p) => (
+          {productsInLabel.map((p) => (
             <button key={p.sku} className="product-card" onClick={() => openProduct(p)}>
               {p.name}
             </button>
           ))}
-          {productsInType.length === 0 && <p>No products in this category yet.</p>}
+          {productsInLabel.length === 0 && <p>No products in this category yet.</p>}
         </div>
       </div>
     );
   }
 
+  // Level 2: categories within the selected parent group.
+  if (activeGroupData) {
+    return (
+      <div className="page catalog-page">
+        <button className="back-link" onClick={() => selectGroup(null)}>
+          ← All categories
+        </button>
+        <h1>{activeGroupData.group}</h1>
+        <div className="product-grid">
+          {activeGroupData.labels.map((l) => (
+            <button key={l.label} className="product-card type-card" onClick={() => setActiveLabel(l.label)}>
+              {l.label}
+            </button>
+          ))}
+          {activeGroupData.labels.length === 0 && <p>No products in this category yet.</p>}
+        </div>
+      </div>
+    );
+  }
+
+  // Level 1: parent groups.
   return (
     <div className="page catalog-page">
-      <h1>Catalog</h1>
-      <p className="page-sub">Browse by category.</p>
+      <h1>KK Umbrellas Catalog</h1>
+      <p className="page-sub">Browse by category</p>
       <div className="product-grid">
-        {types.map((t) => (
-          <button key={t} className="product-card type-card" onClick={() => setActiveType(t)}>
-            {t}
+        {categoryTree.map((g) => (
+          <button key={g.group} className="product-card type-card" onClick={() => selectGroup(g.group)}>
+            {g.group}
           </button>
         ))}
-        {types.length === 0 && <p>No products available yet.</p>}
+        {categoryTree.length === 0 && <p>No products available yet.</p>}
       </div>
     </div>
   );
