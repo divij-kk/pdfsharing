@@ -36,26 +36,22 @@ export default function CustomerIntakeForm({ firebaseUser }: { firebaseUser: Fir
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>Just one more step</h1>
-        <p className="auth-sub">
-          Signed in as {firebaseUser.email}. A couple more details before you browse.
-        </p>
+        <h1>Please share your details to browse:</h1>
         <label>
           Name *
           <input required value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />
         </label>
         <label>
-          Mobile Number *
+          Mobile Number
           <input
             type="tel"
-            required
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
             autoComplete="tel"
           />
         </label>
         <label>
-          Location <span className="auth-optional">(optional)</span>
+          Location
           <input
             value={location}
             onChange={(e) => setLocation(e.target.value)}
