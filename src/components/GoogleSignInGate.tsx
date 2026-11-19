@@ -23,8 +23,7 @@ export default function GoogleSignInGate() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <h1>Welcome to KK Umbrellas</h1>
-        <p className="auth-sub">Sign in with Google to browse the catalog.</p>
+        <h1>KK Umbrellas Catalog</h1>
         {error && <p className="auth-error">{error}</p>}
         <button className="google-btn" onClick={handleGoogleSignIn} disabled={busy}>
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
