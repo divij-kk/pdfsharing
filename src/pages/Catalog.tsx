@@ -12,7 +12,10 @@ import type { Product } from '../types';
 
 export default function Catalog() {
   const { firebaseUser, profile, loading: authLoading } = useAuth();
-  const { products, loading } = useProducts();
+  // Don't start the products listener until we actually have a signed-in
+  // user — see useProducts' comment for why starting it earlier can leave
+  // the catalog permanently blank until a hard refresh.
+  const { products, loading } = useProducts(!!firebaseUser);
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
   const [activeLabel, setActiveLabel] = useState<string | null>(null);
   const [viewing, setViewing] = useState<Product | null>(null);
@@ -160,7 +163,6 @@ export default function Catalog() {
   return (
     <div className="page catalog-page">
       <h1>KK Umbrellas Catalog</h1>
-      <p className="page-sub">Browse by category</p>
       {superGroups.map((sg) => (
         <section key={sg.superGroup} className="catalog-section">
           <h2 className="catalog-section-heading">{sg.superGroup}</h2>

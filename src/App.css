@@ -271,6 +271,7 @@ h1 {
   font-size: 14.5px;
   font-weight: 600;
   font-family: inherit;
+  text-transform: none;
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -578,4 +579,107 @@ h1 {
   outline: none;
   border-color: var(--kk-primary);
   box-shadow: 0 0 0 3px var(--kk-primary-light);
+}
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 640px) {
+  .nav {
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .nav-logo {
+    height: 26px;
+  }
+
+  .nav-links {
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .nav-links a {
+    font-size: 12px;
+  }
+
+  /* The full email address is the biggest space hog on a phone-width
+     header — drop it and keep just the Log out button. */
+  .nav-email {
+    display: none;
+  }
+
+  .nav-user {
+    gap: 8px;
+  }
+
+  .nav-user button {
+    padding: 6px 11px;
+    font-size: 12px;
+  }
+
+  .page {
+    padding: 20px 16px 48px;
+  }
+
+  .catalog-page h1 {
+    font-size: 22px;
+  }
+
+  .dashboard-page h1 {
+    font-size: 20px;
+  }
+
+  .catalog-section-heading {
+    font-size: 12.5px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+    gap: 10px;
+  }
+
+  .product-card {
+    padding: 16px 12px;
+    font-size: 13px;
+  }
+
+  .auth-page {
+    padding: 28px 16px;
+    min-height: calc(100vh - 60px);
+  }
+
+  .auth-card {
+    padding: 22px 18px;
+  }
+
+  .dashboard-toolbar {
+    flex-wrap: wrap;
+  }
+
+  .log-search {
+    width: 100%;
+  }
+
+  /* Let wide tables scroll horizontally inside their own box instead of
+     the whole page scrolling sideways. */
+  .stock-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  .modal-card {
+    width: 96vw;
+    height: 90vh;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 10px 14px;
+  }
+
+  .modal-header h2 {
+    font-size: 13px;
+  }
 }
