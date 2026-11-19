@@ -36,7 +36,7 @@ export default function CustomerIntakeForm({ firebaseUser }: { firebaseUser: Fir
   return (
     <div className="auth-page">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1>Please share your details to browse:</h1>
+        <h1 className="normal-case">Please share your details to browse:</h1>
         <label>
           Name *
           <input required value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" />

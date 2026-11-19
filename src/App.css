@@ -195,6 +195,11 @@ h1 {
   font-size: 14px;
 }
 
+/* Opt a single heading/line out of the global body uppercase. */
+.normal-case {
+  text-transform: none;
+}
+
 .auth-optional {
   font-weight: 400;
   color: var(--kk-muted);
