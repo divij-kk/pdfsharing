@@ -245,6 +245,7 @@ export default function Catalog() {
   // Level 1: parent groups, bucketed under their super-group heading.
   return (
     <div className="page catalog-page">
+      <h1>KK Umbrellas Catalog</h1>
       <div className="search-wrap">
         <input
           type="text"
@@ -277,7 +278,6 @@ export default function Catalog() {
           </div>
         )}
       </div>
-      <h1>KK Umbrellas Catalog</h1>
       {superGroups.map((sg) => (
         <section key={sg.superGroup} className="catalog-section">
           <h2 className="catalog-section-heading">{sg.superGroup}</h2>
