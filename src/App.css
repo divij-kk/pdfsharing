@@ -63,6 +63,87 @@ h1 {
   margin: 0 0 10px;
 }
 
+/* Sub-heading used inside a group (Regular Size / Golf Size, 2 Fold / 3
+   Fold) and for Kids Umbrellas' item-type headings. Blue, smaller than
+   .catalog-section-heading, to read as one level down from it. */
+.sub-heading {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--kk-primary);
+  margin: 0 0 8px;
+}
+
+.catalog-section .sub-heading {
+  margin-top: 0;
+}
+
+/* ---------- Catalog search ---------- */
+
+.search-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--kk-border);
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--kk-text);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--kk-primary);
+  box-shadow: 0 0 0 3px var(--kk-primary-light);
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--kk-card);
+  border: 1px solid var(--kk-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.search-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--kk-border);
+  padding: 11px 14px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--kk-text);
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.search-item:hover {
+  background: var(--kk-primary-light);
+}
+
+.search-empty {
+  padding: 13px 14px;
+  font-size: 13px;
+  color: var(--kk-muted);
+}
+
 /* ---------- Nav ---------- */
 
 .nav {

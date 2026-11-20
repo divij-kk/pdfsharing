@@ -111,3 +111,115 @@ export function groupBySuperGroup(tree: CategoryGroup[]): SuperGroup[] {
   });
   return Array.from(map.entries()).map(([superGroup, groups]) => ({ superGroup, groups }));
 }
+
+// ---------------------------------------------------------------------
+// Level-1 button labels: these 4 groups show a shorter button on the home
+// page ("Manual Open" / "Automatic Open") while the group's own heading
+// (level 2) still shows the full name untouched.
+// ---------------------------------------------------------------------
+export const GROUP_BUTTON_LABELS: Record<string, string> = {
+  'Long Umbrellas - Manual Open': 'Manual Open',
+  'Long Umbrellas - Automatic Open': 'Automatic Open',
+  'Folding Umbrellas - Manual Open': 'Manual Open',
+  'Folding Umbrellas - Automatic Open': 'Automatic Open',
+};
+
+export function buttonLabelFor(group: string): string {
+  return GROUP_BUTTON_LABELS[group] ?? group;
+}
+
+// ---------------------------------------------------------------------
+// Level-2 sub-headings: buckets a group's labels under named headings on
+// the category list page. A label not listed here falls back into an
+// "Other" bucket so nothing silently disappears if TYPE_CONFIG grows.
+// ---------------------------------------------------------------------
+export interface SubHeadingConfig {
+  heading: string;
+  labels: string[];
+}
+
+export const GROUP_SUBHEADINGS: Record<string, SubHeadingConfig[]> = {
+  'Long Umbrellas - Manual Open': [
+    { heading: 'Regular Size', labels: ['12K Manual', '8K Manual'] },
+    { heading: 'Golf Size', labels: ['Golf Umbrella - 12K Manual Open', 'Golf Umbrella - 8K Manual Open'] },
+  ],
+  'Folding Umbrellas - Manual Open': [
+    {
+      heading: '2 Fold',
+      labels: ['2 Fold Manual', '2 Fold Manual - Jumbo Size', '2 Fold Manual - Super Jumbo Size (Hawk)'],
+    },
+    {
+      heading: '3 Fold',
+      labels: [
+        '3 Fold Manual',
+        '3 Fold Manual - Jumbo Size',
+        '3 Fold Manual - Frill Design',
+        '3 Fold Manual - Reverse Open',
+      ],
+    },
+  ],
+  'Folding Umbrellas - Automatic Open': [
+    {
+      heading: '2 Fold',
+      labels: ['2 Fold Automatic', '2 Fold Automatic - Jumbo Size', '2 Fold Automatic - Super Jumbo Size'],
+    },
+    { heading: '3 Fold', labels: ['3 Fold Automatic'] },
+  ],
+};
+
+// A label's level-2 button can read shorter than its own display name
+// (level 3's heading still shows the full name). Only Long Umbrellas'
+// Regular/Golf Size split needs this — every other sub-heading's button
+// text matches its label exactly.
+export const LABEL_BUTTON_OVERRIDES: Record<string, string> = {
+  '12K Manual': '12K',
+  '8K Manual': '8K',
+  'Golf Umbrella - 12K Manual Open': '12K',
+  'Golf Umbrella - 8K Manual Open': '8K',
+};
+
+export function labelButtonText(label: string): string {
+  return LABEL_BUTTON_OVERRIDES[label] ?? label;
+}
+
+export interface LabelSubHeading {
+  heading: string;
+  labels: CategoryLabel[];
+}
+
+/** Buckets a group's labels into its configured sub-headings, preserving
+ * label order within each bucket, or null if this group has none configured
+ * (in which case the caller should render a flat label list as before). */
+export function subHeadingsFor(group: CategoryGroup): LabelSubHeading[] | null {
+  const config = GROUP_SUBHEADINGS[group.group];
+  if (!config) return null;
+  const used = new Set<string>();
+  const buckets = config.map((c) => {
+    const labels = c.labels
+      .map((name) => group.labels.find((l) => l.label === name))
+      .filter((l): l is CategoryLabel => {
+        if (l) used.add(l.label);
+        return !!l;
+      });
+    return { heading: c.heading, labels };
+  });
+  const leftover = group.labels.filter((l) => !used.has(l.label));
+  if (leftover.length > 0) buckets.push({ heading: 'Other', labels: leftover });
+  return buckets;
+}
+
+// ---------------------------------------------------------------------
+// Kids Umbrellas: segregated by item type instead of a flat product list.
+// There's no raw inventory code per item type, so this reads the type
+// name straight out of the product's name (set in the inventory sheet).
+// ---------------------------------------------------------------------
+export const KIDS_GROUP_NAME = 'Kids Umbrellas';
+export const KIDS_TYPE_ORDER = ['Bambi', 'Pixie', 'Candy', 'Coco', 'Pluto', 'Others'];
+
+/** Buckets a kids product by the item-type keyword in its name, falling
+ * back to "Others" for anything that doesn't match a known type. */
+export function kidsTypeFor(productName: string): string {
+  const upper = productName.toUpperCase();
+  const match = KIDS_TYPE_ORDER.find((t) => t !== 'Others' && upper.includes(t.toUpperCase()));
+  return match ?? 'Others';
+}
