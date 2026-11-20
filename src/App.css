@@ -481,6 +481,16 @@ h1 {
 .modal-header h2 {
   font-size: 15px;
   margin: 0;
+  /* A long product name can otherwise overflow the header and push the
+     close button outside the modal card's clipped bounds (.modal-card has
+     overflow: hidden) — most visible on a phone, where there's far less
+     width to work with. Truncate instead of pushing. */
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 10px;
 }
 
 .modal-header button {
@@ -490,6 +500,9 @@ h1 {
   cursor: pointer;
   line-height: 1;
   color: var(--kk-muted);
+  flex-shrink: 0;
+  padding: 4px;
+  margin: -4px;
 }
 
 .modal-iframe {
